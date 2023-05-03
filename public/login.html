@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+  <link href="main.css" rel="stylesheet">
+</head>
+<body>
+  
+  <nav class="navbar navbar-expand-lg navbar-light bg-light">
+    <div class="container-fluid">
+      <a class="navbar-brand" href="https://pohangport-chat.web.app/">포항항항항</a>
+      <span class="mr-auto mx-2" id="NameID">유저이름</span>
+
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarScroll" aria-controls="navbarScroll" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarScroll">
+        <ul class="navbar-nav me-auto my-2 my-lg-0 navbar-nav-scroll" style="--bs-scroll-height: 100px;">
+          <li class="nav-item">
+            <a class="nav-link active" aria-current="page" href="https://pohangport-chat.web.app/">Home</a>
+          </li>
+      </div>
+    </div>
+  </nav>
+
+  <div class="container mt-3">
+    <div class="mb-3">
+      <input type="text" class="form-control" placeholder="name" id="name-new">
+    </div>
+    <div class="mb-3">
+      <input type="email" class="form-control" placeholder="email" id="email-new">
+    </div>
+    <div class="mb-3">
+      <input type="password" class="form-control" placeholder="pw" id="pw-new">
+    </div>
+    <button type="submit" class="btn btn-primary" id="register">가입하기</button>
+  </div>
+
+  <div class="container mt-3">
+    <div class="mb-3">
+      <input type="email" class="form-control" placeholder="email" id="email">
+    </div>
+    <div class="mb-3">
+      <input type="password" class="form-control" placeholder="pw" id="pw">
+    </div>
+      <button type="submit" class="btn btn-primary" id="login">로그인하기</button>
+      <script>
+        location.href='../index.php';
+       </script> 
+      <button type="submit" class="btn btn-primary" id="logout">로그아웃</button>
+    </div>
+
+  <script src="https://www.gstatic.com/firebasejs/8.6.5/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.6.5/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.6.5/firebase-firestore.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.6.5/firebase-storage.js"></script>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>
+  
+  <script
+  src="https://code.jquery.com/jquery-3.6.0.min.js"
+  integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4="
+  crossorigin="anonymous"></script>
+
+<script>
+const firebaseConfig = {
+  apiKey: "AIzaSyDMMVH0NlZF3Gl-k1XB-wXStkYZ18EGcYE",
+  authDomain: "pohangport-chat.firebaseapp.com",
+  projectId: "pohangport-chat",
+  storageBucket: "pohangport-chat.appspot.com",
+  messagingSenderId: "791677190019",
+  appId: "1:791677190019:web:929fda2b0b3a718ddd80b6",
+  measurementId: "G-BQFS9BCKM4"
+};
+firebase.initializeApp(firebaseConfig);
+</script>
+
+<script>
+  const db = firebase.firestore();
+  const storage = firebase.storage();
+  
+  var takeOut = localStorage.getItem('user')
+
+  //$('#NameID').html(JSON.parse(takeOut).displayName);
+
+
+  firebase.auth().onAuthStateChanged((user)=>{
+    if (user) {
+    console.log(user.uid)
+    console.log(user.displayName)
+    localStorage.setItem('user', JSON.stringify(user))
+
+  }
+})
+  
+  $('#logout').click(function(){
+    firebase.auth().signOut()
+    localStorage.removeItem('user')
+  })
+
+  
+  $('#login').click(function(){
+  
+  var 이메일 = $('#email').val();
+  var 패스워드 = $('#pw').val();
+
+  firebase.auth().signInWithEmailAndPassword(이메일, 패스워드).then((result)=>{
+    console.log(result.user)
+  })
+})
+
+  $('#register').click(function(){
+  
+    var 이메일 = $('#email-new').val();
+    var 패스워드 = $('#pw-new').val();
+    var 이름 = $('#name-new').val();
+
+    firebase.auth().createUserWithEmailAndPassword(이메일, 패스워드).then((result)=>{
+    result.user.updateProfile( {displayName : 이름} )
+    var 유저정보 = { name : 이름, email : 이메일 }
+    db.collection('user').doc(result.user.uid).set(유저정보)
+})
+    
+    console.log(result)
+    console.log(result.user)
+    result.user.updateProfile( {displayName : 이름} )
+  })
+
+</script>
+</body>
+</html>
